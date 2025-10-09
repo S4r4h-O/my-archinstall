@@ -45,7 +45,6 @@ class ArchInstall:
                     text=True,
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE,
-                    input="y",
                 )
 
                 print(result.stdout)
@@ -112,7 +111,7 @@ class ArchInstall:
 
     def select_mirrors(self):
         print("Installing reflector...")
-        self.run_command(command="pacman -Sy reflector")
+        self.run_command(command="pacman -Sy --noconfirm reflector")
         country = input("Your country initials: ").strip().upper()
         self.run_command(
             command=f"""
@@ -122,25 +121,27 @@ class ArchInstall:
             """
         )
         print("Updating mirrors...")
-        self.run_command(command="pacman -Syy")
+        self.run_command(command="pacman -Syy --noconfirm")
 
     def install_essential(self):
         print("Installing essentials...")
-        self.run_command(command="pacstrap -K /mnt base linux linux-firmware")
+        self.run_command(
+            command="pacstrap -K /mnt base linux linux-firmware --noconfirm"
+        )
 
     def system_settings(self):
+        """Here, chroot creates an isolated enviroment, so we need to run everything at once (I guess)"""
         print("Configuring the system...")
         print("Running fstab...")
-        self.run_command(command="genfstab -U /mnt >> /mnt/etc/fstab")
         print("Changing root.")
-        self.run_command(command="arch-chroot /mnt")
         print("Setting the timezone.")
-        self.run_command(
-            command=f"ln -sf /usr/share/zoneinfo/{self.region}/{self.city} /etc/localtime"
-        )
-        self.run_command("hwclock --systohc")
-        print("Setting up the localization...")
-        self.run_command(command=f"echo 'LANG={self.locale}' >> /etc/locale.conf")
+        # This is insane, will change later
+        self.run_command(f"""arch-chroot /mnt /bin/bash -c '
+            ln -sf /usr/share/zoneinfo/{self.region}/{self.city} /etc/localtime &&
+            hwclock --systohc &&
+            echo LANG={self.locale} >> /etc/locale.conf' &&
+            local-gen &&
+            """)
 
     def network_config(self):
         self.run_command(command=f"hostnamectl hostname {self.hostname}")
