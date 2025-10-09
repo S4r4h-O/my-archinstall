@@ -45,7 +45,7 @@ class ArchInstall:
                     text=True,
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE,
-                    input="y/n",
+                    input="y",
                 )
 
                 print(result.stdout)
@@ -116,7 +116,7 @@ class ArchInstall:
         country = input("Your country initials: ").strip().upper()
         self.run_command(
             command=f"""
-                reflector --country {country} \
+                reflector --country {country},Worldwide \
                 --age 12 --protocol https --sort rate \
                 --save /etc/pacman.d/mirrorlist
             """
