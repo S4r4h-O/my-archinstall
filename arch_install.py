@@ -162,14 +162,9 @@ class ArchInstall:
     def select_mirrors(self):
         print("Installing reflector...")
         run_command(command="pacman -Sy --noconfirm reflector", interactive=True)
-        country = input("Your country: ").strip()
         run_command(
-            command=f"""
-            reflector --country '{country}' --latest 5 --protocol https --sort rate
-                --save /etc/pacman.d/mirrorlist &&
-            reflector --country Worldwide --latest 10 --protocol https --sort rate
-                >> /etc/pacman.d/mirrorlist
-            """
+            command="reflector --latest 20 --protocol https --sort rate --save /etc/pacman.d/mirrorlist",
+            interactive=True,
         )
         print("Updating mirrors...")
         run_command(command="pacman -Syy --noconfirm")
