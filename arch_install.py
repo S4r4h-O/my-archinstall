@@ -195,6 +195,7 @@ class ArchInstall:
         self.mount_filesystems()
         self.select_mirrors()
         self.install_essential()
+        self.fstab()
         self.system_settings()
         self.network_config()
 
