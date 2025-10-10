@@ -170,6 +170,11 @@ class ArchInstall:
             interactive=True,
         )
 
+    def fstab(self):
+        print("Generating fstab")
+        self.run_command(command="genfstab /mnt", interactive=True)
+        self.run_command(command="genfstab -U /mnt >> /mnt/etc/fstab", interactive=True)
+
     def system_settings(self):
         """Here, chroot creates an isolated enviroment, so we need to run everything at once (I guess)"""
         # TODO: Find out how to run chroot properly via subprocess
