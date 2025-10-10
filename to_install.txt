@@ -1,0 +1,14 @@
+hyprland
+hyprpaper
+waybar
+rofi
+rust
+firefox
+kitty
+thunar
+btop
+ranger
+neovim
+bluez
+bluez-utils
+blueman
