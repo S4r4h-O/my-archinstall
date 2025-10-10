@@ -1,6 +1,8 @@
 #!/usr/bin/python
 
 import subprocess
+import pty
+import os
 
 
 class ArchInstall:
@@ -21,41 +23,78 @@ class ArchInstall:
         self.locale = locale
         self.hostname = hostname
 
-    def run_command(self, command, cwd=".", background=False):
+    def run_command(
+        self, command, cwd=".", background=False, interactive=False, virt_terminal=False
+    ):
         try:
             if background:
                 process = subprocess.Popen(
                     command,
                     shell=True,
                     cwd=cwd,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
                 )
-
-                print(process.stdout)
-                print(process.stderr)
 
                 return process
 
+            if interactive:
+                process = subprocess.Popen(command, shell=True, cwd=cwd)
+                return process.wait() == 0
+
+            if virt_terminal:
+                master_fd, slave_fd = pty.openpty()
+                process = subprocess.Popen(
+                    command,
+                    shell=True,
+                    cwd=cwd,
+                    stdin=slave_fd,
+                    stdout=slave_fd,
+                    stderr=slave_fd,
+                    universal_newlines=True,
+                )
+
+                os.close(slave_fd)
+
+                try:
+                    while True:
+                        output = os.read(master_fd, 1024)
+                        if not output:
+                            break
+                        print(output.decode(), end="")
+                except OSError:
+                    pass
+
+                process.wait()
+                os.close(master_fd)
+                return process.returncode
+
             else:
-                result = subprocess.run(
+                with subprocess.Popen(
                     command,
                     shell=True,
                     cwd=cwd,
                     text=True,
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE,
-                )
+                    bufsize=1,
+                ) as result:
+                    stdout_lines, stderr_lines = result.communicate()
 
-                print(result.stdout)
-                print(result.stderr)
+                    if stdout_lines:
+                        for line in stdout_lines.splitlines():
+                            print(line.strip())
 
-                if result.returncode != 0:
-                    print(f"Error executing {command}")
-                    print(f"stderr: {result.stderr}")
-                    return False
+                    if stderr_lines:
+                        for line in stderr_lines.splitlines():
+                            print(line.strip())
 
-                return True
+                    if result.returncode != 0:
+                        print(f"Error executing {command}")
+                        print(f"stderr: {result.stderr}")
+                        return False
+
+                    return True
 
         except Exception as e:
             print(f"Exception executing {command}: {e}")
@@ -88,7 +127,7 @@ class ArchInstall:
         disk_to_partition = input("Select a disk: ").strip()
         self.disk = disk_to_partition
         # This allocates the remaining space to root
-        # TODO user should choose the root size
+        # TODO: user should choose the root size
         print("Partitioning the disk...")
         self.run_command(
             command=f"""
@@ -111,8 +150,8 @@ class ArchInstall:
 
     def select_mirrors(self):
         print("Installing reflector...")
-        self.run_command(command="pacman -Sy --noconfirm reflector")
-        country = input("Your country initials: ").strip().upper()
+        self.run_command(command="pacman -Sy --noconfirm reflector", interactive=True)
+        country = input("Your country: ").strip()
         self.run_command(
             command=f"""
                 reflector --country {country},Worldwide \
@@ -126,22 +165,18 @@ class ArchInstall:
     def install_essential(self):
         print("Installing essentials...")
         self.run_command(
-            command="pacstrap -K /mnt base linux linux-firmware --noconfirm"
+            command="pacstrap -K /mnt base linux linux-firmware sof-firmware \
+            base-devel grub efibootmgr networkmanager --noconfirm",
+            interactive=True,
         )
 
     def system_settings(self):
         """Here, chroot creates an isolated enviroment, so we need to run everything at once (I guess)"""
-        print("Configuring the system...")
-        print("Running fstab...")
-        print("Changing root.")
-        print("Setting the timezone.")
-        # This is insane, will change later
-        self.run_command(f"""arch-chroot /mnt /bin/bash -c '
-            ln -sf /usr/share/zoneinfo/{self.region}/{self.city} /etc/localtime &&
-            hwclock --systohc &&
-            echo LANG={self.locale} >> /etc/locale.conf' &&
-            local-gen &&
-            """)
+        # TODO: Find out how to run chroot properly via subprocess
+        print("Chroot...")
+        self.run_command(
+            command="chmod +x ./chroot.sh && ./chroot.sh", interactive=True
+        )
 
     def network_config(self):
         self.run_command(command=f"hostnamectl hostname {self.hostname}")
