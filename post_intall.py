@@ -10,19 +10,24 @@ def install_apps():
     run_command(command=f"sudo pacman -Sy {apps}", interactive=True)
 
 
-def download_files(url, filename, binary=False):
-    local_filename, headers = request.urlretrieve(url)
+def download_files(url, filename: Path):
+    def reporthook(count, block_size, total_size):
+        total_size = total_size / (1024 * 1024)
+        block_size = block_size / (1024 * 1024)
+        downloaded = count * block_size
+        print(
+            f"Downloaded: {downloaded:.2f} / {total_size:.2f} MB",
+            end="\r",
+            flush=True,
+        )
 
-    if binary:
-        pass
-
-    else:
-        with open(local_filename, "r") as f:
-            content = f.read()
-
-        with Path(filename).open(mode="w", encoding="utf-8") as file:
-            file.write(content)
+    result = request.urlretrieve(url, filename=filename, reporthook=reporthook)
+    print(f"\n{filename.name} downloaded!")
+    return result
 
 
 if __name__ == "__main__":
-    install_apps()
+    download_files(
+        url="https://github.com/tailwindlabs/tailwindcss/releases/latest/download/tailwindcss-linux-x64",
+        filename=Path("./tailwind"),
+    )
