@@ -124,10 +124,18 @@ class ArchInstall:
 
         run_command(command="iwctl device list")
 
+    def check_uefi(self):
+        pass
+
     def partitioning(self):
+        # TODO: add valitdation
         print("Available disks: ")
+        # print(os.listdir("/sys/block/"))
+        # avail_disks = os.listdir("/sys/block/")
         run_command("lsblk")
         disk_to_partition = input("Select a disk: ").strip()
+        # if not disk_to_partition in avail_disks:
+        #   print("Disk not Available")
         self.disk = disk_to_partition
         # This allocates the remaining space to root
         # TODO: user should choose the root size
@@ -157,9 +165,9 @@ class ArchInstall:
         country = input("Your country: ").strip()
         run_command(
             command=f"""
-            reflector --country {country} --latest 5 --protocol https --sort rate \
-                --save /etc/pacman.d/mirrorlist && \
-            reflector --country Worldwide --latest 10 --protocol https --sort rate \
+            reflector --country '{country}' --latest 5 --protocol https --sort rate
+                --save /etc/pacman.d/mirrorlist &&
+            reflector --country Worldwide --latest 10 --protocol https --sort rate
                 >> /etc/pacman.d/mirrorlist
             """
         )
@@ -171,7 +179,7 @@ class ArchInstall:
         print("Installing essentials...")
         run_command(
             command="pacstrap -K /mnt base linux linux-firmware sof-firmware \
-            base-devel grub efibootmgr networkmanager amd-ucode --noconfirm",
+            base-devel grub efibootmgr networkmanager amd-ucode git --noconfirm",
             interactive=True,
         )
 
@@ -204,7 +212,8 @@ class ArchInstall:
             grub-install /dev/{self.disk}
             grub-mkconfig -o /boot/grub/grub.cfg
             """
-        run_command(command=f"arch-chroot /mnt /bin/bash -c '{chroot_commands}'")
+
+        run_command(command=f'arch-chroot /mnt /bin/bash -c "{chroot_commands}"')
 
     def install(self):
         self.set_keymap()
