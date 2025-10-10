@@ -2,6 +2,7 @@
 
 ## TODO
 
-- [ ] Bootloader installation
+- [ ] Bootloader setup
 - [ ] Fix chroot usage
 - [ ] Create users
+- [ ] Persistent network settings (networkmanager)
