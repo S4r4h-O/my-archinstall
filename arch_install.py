@@ -86,6 +86,7 @@ class ArchInstall:
     def __init__(
         self,
         hostname,
+        username,
         keymap,
         wireless=True,
         region=None,
@@ -99,6 +100,7 @@ class ArchInstall:
         self.city = city
         self.locale = locale
         self.hostname = hostname
+        self.username = username
 
     def set_keymap(self):
         print(f"Setting keymap to {self.keymap}.")
@@ -155,19 +157,21 @@ class ArchInstall:
         country = input("Your country: ").strip()
         run_command(
             command=f"""
-                reflector --country {country},Worldwide \
-                --age 12 --protocol https --sort rate \
-                --save /etc/pacman.d/mirrorlist
+            reflector --country {country} --latest 5 --protocol https --sort rate \
+                --save /etc/pacman.d/mirrorlist && \
+            reflector --country Worldwide --latest 10 --protocol https --sort rate \
+                >> /etc/pacman.d/mirrorlist
             """
         )
         print("Updating mirrors...")
         run_command(command="pacman -Syy --noconfirm")
 
     def install_essential(self):
+        # TODO: verify cpu to install amd or intel libs
         print("Installing essentials...")
         run_command(
             command="pacstrap -K /mnt base linux linux-firmware sof-firmware \
-            base-devel grub efibootmgr networkmanager --noconfirm",
+            base-devel grub efibootmgr networkmanager amd-ucode --noconfirm",
             interactive=True,
         )
 
@@ -177,13 +181,30 @@ class ArchInstall:
         run_command(command="genfstab -U /mnt >> /mnt/etc/fstab", interactive=True)
 
     def system_settings(self):
-        """Here, chroot creates an isolated enviroment, so we need to run everything at once (I guess)"""
+        """Setup network configs, core services and e grub"""
         # TODO: Find out how to run chroot properly via subprocess
         print("Chroot...")
-        run_command(command="chmod +x ./chroot.sh && ./chroot.sh", interactive=True)
+        root_passwd = input("Root password: ").strip()
+        user_passwd = input("User password: ").strip()
 
-    def network_config(self):
-        run_command(command=f"hostnamectl hostname {self.hostname}")
+        chroot_commands = f"""
+            ln -sf /usr/share/zoneinfo/{self.region}/{self.city} /etc/localtime
+            hwclock --systohc
+            echo 'LANG={self.locale}' > /etc/locale.conf
+            sed -i 's/#{self.locale}/{self.locale}/' /etc/locale.gen
+            locale-gen
+            echo 'KEYMAP={self.keymap}' > /etc/vconsole.conf
+            hostnamectl hostname {self.hostname}
+            echo 'root:{root_passwd}' | chpasswd
+            useradd -m -G wheel -s /bin/bash {self.username}
+            echo '{self.username}:{user_passwd}' | chpasswd
+            echo '%wheel ALL=(ALL:ALL) ALL' > /etc/sudoers.d/wheel
+            chmod 440 /etc/sudoers.d/wheel
+            systemctl enable NetworkManager
+            grub-install /dev/{self.disk}
+            grub-mkconfig -o /boot/grub/grub.cfg
+            """
+        run_command(command=f"arch-chroot /mnt /bin/bash -c '{chroot_commands}'")
 
     def install(self):
         self.set_keymap()
@@ -196,7 +217,6 @@ class ArchInstall:
         self.install_essential()
         self.fstab()
         self.system_settings()
-        self.network_config()
 
 
 if __name__ == "__main__":
@@ -204,7 +224,8 @@ if __name__ == "__main__":
         keymap="br-abnt2",
         region="America",
         city="Sao_Paulo",
-        hostname="sarah",
+        hostname="arch",
+        username="sarah",
         wireless=False,
     )
     archinstall.install()
