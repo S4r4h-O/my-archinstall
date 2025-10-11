@@ -119,7 +119,8 @@ wifi_connect() {
 }
 
 # TODO: dynamic partitioning sizes
-partitioning() {
+# TODO: split function for readabilty
+partitioning_and_mounting() {
   local disk=""
 
   printf "${GREEN}[DISK]${RESET}: Available disks: \n"
@@ -130,7 +131,7 @@ partitioning() {
     read -r disk
 
     if [[ -n "$disk" ]] && lsblk -dn -o NAME | grep -Fxq "$disk"; then
-      printf "${GREEN}[DISK]${RESET}: Partitioning ${disk}...\n"
+      printf "${BLUE}[DISK]${RESET}: Partitioning ${disk}...\n"
 
       if parted --script "/dev/${disk}" \
         mklabel gpt \
@@ -140,7 +141,7 @@ partitioning() {
         mkpart swap linux-swap -2GiB 100%; then
         printf "${GREEN}[DISK]${RESET}: ${disk} partitioned successfully!\n"
 
-        printf "${GREEN}[DISK]${RESET}: Now formatting...\n"
+        printf "${BLUE}[DISK]${RESET}: Now formatting...\n"
         mkfs.fat -F32 "/dev/${disk}1"
         status_fat=$?
 
@@ -155,6 +156,23 @@ partitioning() {
 
         if [[ $status_fat -eq 0 ]] && [[ $status_ext4 -eq 0 ]] && [[ $status_swap -eq 0 ]] && [[ $status_swapon -eq 0 ]]; then
           printf "${GREEN}[DISK]${RESET}: Formatted successfully!\n"
+
+          printf "${GREEN}[DISK]${RESET}: Now mounting...\n"
+          mount "/dev/${disk}2" /mnt
+          status_root_mount=$?
+
+          mkdir -p /mnt/boot/efi
+          status_efi_dir=$?
+
+          mount "/dev/${disk}1" /mnt/boot/efi
+          status_efi_mount=$?
+
+          if [[ $status_root_mount -eq 0 ]] && [[ $status_efi_dir -eq 0 ]] && [[ $status_efi_mount -eq 0 ]]; then
+            printf "${GREEN}[DISK]${RESET}: Mounted successfully!\n"
+          else
+            printf "${RED}[DISK]${RESET}: Failed to mount partitions.\n"
+          fi
+
         else
           printf "${RED}[DISK]${RESET}: Failed to format.\n"
           echo "Status codes: FAT=${status_fat} | EXT4=${status_ext4} | SWAP=${status_swap} | SWAPON=${status_swapon}"
@@ -171,7 +189,6 @@ partitioning() {
 }
 
 main() {
-  partitioning
   while true; do
     printf "${BOLD}${GREEN}Want to setup wireless connections?: (y/n)${RESET} "
     read -r is_wireless
@@ -181,7 +198,8 @@ main() {
       wifi_connect
       break
     elif [[ "$is_wireless" == "n" ]]; then
-      printf "${YELLOW}[WIRELESS]${RESET}: Skipping wireless setup.\n"
+      printf "${YELLOW}[WIRELESS]${RESET}: Skipping wireless setup. ""\
+This process requires network connection, reexecute the script if you need wifi.\n"
       break
     else
       printf "${RED}[ERROR]${RESET}: Invalid option. Please try again.\n"
@@ -190,6 +208,7 @@ main() {
   done
 
   set_keymap
+  partitioning
 }
 
 main
