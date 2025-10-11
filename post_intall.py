@@ -22,6 +22,8 @@ def install_apps():
 
 
 def download_files(url: str, filename: Path):
+    print(f"{GREEN}[DOWNLOAD]{RESET}: {url}")
+
     def reporthook(count, block_size, total_size):
         total_mb = total_size / (1024 * 1024)
         block_mb = block_size / (1024 * 1024)
@@ -34,7 +36,7 @@ def download_files(url: str, filename: Path):
         )
 
     result = request.urlretrieve(url, filename=filename, reporthook=reporthook)
-    print(f"\n{filename.name} downloaded!")
+    print(f"\n{filename.name} downloaded!\n")
     return result
 
 
