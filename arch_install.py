@@ -146,12 +146,15 @@ class ArchInstall:
             mklabel gpt \
             mkpart ESP fat32 1MiB 1025MiB \
             set 1 esp on \
-            mkpart primary ext4 1025MiB 100%
+            mkpart primary ext4 1025MiB -2GiB \
+            mkpart swap linux-swap -2GiB 100%
         """
         )
         print("Formatting the partitions...")
         run_command(command=f"mkfs.fat -F32 /dev/{self.disk}1")
         run_command(command=f"mkfs.ext4 /dev/{self.disk}2")
+        run_command(command=f"mkswap /dev/{self.disk}3")
+        run_command(command=f"swapon /dev/{self.disk}3")
 
     def mount_filesystems(self):
         print("Mounting the partitions...")
