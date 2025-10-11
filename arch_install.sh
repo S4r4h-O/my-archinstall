@@ -124,8 +124,20 @@ partitioning() {
   printf "${GREEN}[DISK]${RESET}: Available disks: \n"
   lsblk
 
-  printf "${GREEN}[DISK]${RESET}: Select a disk: \n"
-  read -r disk
+  while true; do
+    printf "${GREEN}[DISK]${RESET}: Select a disk: \n"
+    read -r disk
+
+    if [[ -n "$disk" ]] && lsblk -dn -o NAME | grep -Fxq "$disk"; then
+      printf "${GREEN}[DISK]${RESET}: Partitioning ${disk}... \n"
+      echo "..."
+      break
+    else
+      printf "${RED}[DISK]${RESET}: Disk not found, try again."
+      continue
+    fi
+  done
+
 }
 
 main() {
