@@ -118,26 +118,35 @@ wifi_connect() {
   done
 }
 
+# TODO: dynamic partitioning sizes
 partitioning() {
   local disk=""
 
   printf "${GREEN}[DISK]${RESET}: Available disks: \n"
-  lsblk
+  lsblk -dn -o NAME,SIZE,TYPE | grep disk
 
   while true; do
-    printf "${GREEN}[DISK]${RESET}: Select a disk: \n"
+    printf "${GREEN}[DISK]${RESET}: Select a disk: "
     read -r disk
 
     if [[ -n "$disk" ]] && lsblk -dn -o NAME | grep -Fxq "$disk"; then
-      printf "${GREEN}[DISK]${RESET}: Partitioning ${disk}... \n"
-      echo "..."
-      break
+      printf "${GREEN}[DISK]${RESET}: Partitioning ${disk}...\n"
+
+      if parted --script "/dev/${disk}" \
+        mklabel gpt \
+        mkpart ESP fat32 1MiB 1025MiB \
+        set 1 esp on \
+        mkpart primary ext4 1025MiB -2GiB \
+        mkpart swap linux-swap -2GiB 100%; then
+        printf "${GREEN}[DISK]${RESET}: ${disk} partitioned successfully!\n"
+        break
+      else
+        printf "${RED}[DISK]${RESET}: Failed to partition ${disk}.\n"
+      fi
     else
-      printf "${RED}[DISK]${RESET}: Disk not found, try again."
-      continue
+      printf "${RED}[DISK]${RESET}: Disk not found, try again.\n"
     fi
   done
-
 }
 
 main() {
