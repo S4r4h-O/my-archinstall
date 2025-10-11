@@ -139,6 +139,27 @@ partitioning() {
         mkpart primary ext4 1025MiB -2GiB \
         mkpart swap linux-swap -2GiB 100%; then
         printf "${GREEN}[DISK]${RESET}: ${disk} partitioned successfully!\n"
+
+        printf "${GREEN}[DISK]${RESET}: Now formatting...\n"
+        mkfs.fat -F32 "/dev/${disk}1"
+        status_fat=$?
+
+        mkfs.ext4 "/dev/${disk}2"
+        status_ext4=$?
+
+        mkswap "/dev/${disk}3"
+        status_swap=$?
+
+        swapon "/dev/${disk}3"
+        status_swapon=$?
+
+        if [[ $status_fat -eq 0 ]] && [[ $status_ext4 -eq 0 ]] && [[ $status_swap -eq 0 ]] && [[ $status_swapon -eq 0 ]]; then
+          printf "${GREEN}[DISK]${RESET}: Formatted successfully!\n"
+        else
+          printf "${RED}[DISK]${RESET}: Failed to format.\n"
+          echo "Status codes: FAT=${status_fat} | EXT4=${status_ext4} | SWAP=${status_swap} | SWAPON=${status_swapon}"
+        fi
+
         break
       else
         printf "${RED}[DISK]${RESET}: Failed to partition ${disk}.\n"
@@ -150,6 +171,7 @@ partitioning() {
 }
 
 main() {
+  partitioning
   while true; do
     printf "${BOLD}${GREEN}Want to setup wireless connections?: (y/n)${RESET} "
     read -r is_wireless
@@ -168,7 +190,6 @@ main() {
   done
 
   set_keymap
-  partitioning
 }
 
 main
