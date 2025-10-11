@@ -1,14 +1,40 @@
+# Desktop Environment
 hyprland
 hyprpaper
 waybar
-rofi
-rust
-firefox
+xdg-desktop-portal-hyprland
+polkit-kde-agent
+qt5-wayland
+qt6-wayland
 kitty
 thunar
-btop
-ranger
-neovim
+
+# Fonts
+noto-fonts
+ttf-nerd-fonts-symbols
+ttf-font-awesome
+
+# Greeter
+ly
+
+# Launcher
+rofi
+
+# Multimedia and connectivity 
 bluez
 bluez-utils
 blueman
+pipewire
+wireplumber
+alsautils
+pavucontrol
+
+# Utils
+fzf
+btop
+ranger
+neovim
+rust
+
+# Internet
+firefox
