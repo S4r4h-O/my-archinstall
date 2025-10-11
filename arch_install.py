@@ -162,8 +162,9 @@ class ArchInstall:
     def select_mirrors(self):
         print("Installing reflector...")
         run_command(command="pacman -Sy --noconfirm reflector", interactive=True)
+        print("Selecting mirrors through reflector...")
         run_command(
-            command="reflector --latest 20 --protocol https --sort rate --save /etc/pacman.d/mirrorlist",
+            command="reflector --latest 10 --fastest 5 --protocol http --download-timeout 10 --save /etc/pacman.d/mirrorlist",
             interactive=True,
         )
         print("Updating mirrors...")
@@ -180,7 +181,6 @@ class ArchInstall:
 
     def fstab(self):
         print("Generating fstab")
-        run_command(command="genfstab /mnt", interactive=True)
         run_command(command="genfstab -U /mnt >> /mnt/etc/fstab", interactive=True)
 
     def system_settings(self):
@@ -204,7 +204,7 @@ class ArchInstall:
             echo '%wheel ALL=(ALL:ALL) ALL' > /etc/sudoers.d/wheel
             chmod 440 /etc/sudoers.d/wheel
             systemctl enable NetworkManager
-            grub-install /dev/{self.disk}
+            grub-install --target=x86_64-efi --efi-directory=/boot/efi/ --bootloader-id=GRUB --recheck
             grub-mkconfig -o /boot/grub/grub.cfg
             """
 
