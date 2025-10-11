@@ -2,12 +2,22 @@
 hyprland
 hyprpaper
 waybar
+hyprlock
+hypridle
+hyprsunset
 xdg-desktop-portal-hyprland
+xdg-users-dirs
+xorg-xwayland
 polkit-kde-agent
+polkit-gnome
 qt5-wayland
 qt6-wayland
+qt5ct
+qt6ct
 kitty
 thunar
+mako
+nwg-look
 
 # Fonts
 noto-fonts
@@ -25,6 +35,7 @@ bluez
 bluez-utils
 blueman
 pipewire
+pipewire-pulse
 wireplumber
 alsautils
 pavucontrol
@@ -35,6 +46,8 @@ btop
 ranger
 neovim
 rust
+brightnessctl
+wl-clipboard
 
 # Internet
 firefox
