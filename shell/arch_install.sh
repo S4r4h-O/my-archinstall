@@ -1,4 +1,5 @@
 # exec "$0" volta para o início
+# TODO: split this code into multiple files
 
 RED="\033[31m"
 GREEN="\033[32m"
@@ -224,6 +225,7 @@ partitioning_and_mounting() {
 }
 
 # TODO: Add input to select countries
+# TODO: replace reflector with rate-mirrors
 select_mirrors() {
   printf "${BLUE}[MIRRORS]${RESET}: Installing reflector...\n"
 
@@ -237,7 +239,6 @@ select_mirrors() {
   reflector --latest 10 --fastest 5 --protocol http --download-timeout 10 --save /etc/pacman.d/mirrorlist
 }
 
-# TODO: installation should not continue if this function is not successful
 install_essentials() {
   printf "${GREEN}[CORE]${RESET}: Installing essentials...\n"
   if pacstrap -K /mnt base linux linux-firmware sof-firmware base-devel \
@@ -245,6 +246,7 @@ install_essentials() {
     printf "${GREEN}[CORE]${RESET}: Essentials installed successfuly!\n"
   else
     printf "${RED}[CORE]${RESET}: Error installing essentials.\n"
+    exit 1
   fi
 }
 
@@ -259,7 +261,6 @@ run_fstab() {
 }
 
 # TODO: better valitdation
-# TODO: split function
 system_setting() {
   printf "${GREEN}[SYSTEM]${RESET}: Setting up network configs, core services and grub...\n"
   local root_passwd=""
@@ -365,6 +366,7 @@ This process requires network connection, reexecute the script if you need wifi.
   select_mirrors
   install_essentials
   run_fstab
+  system_setting
 }
 
 main
