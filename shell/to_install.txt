@@ -61,3 +61,11 @@ unzip
 
 # Internet
 firefox
+
+# AMD Drivers
+amd-ucode
+mesa
+vulkan-radeon
+libva-mesa-driver
+mesa-vdpau
+vulkan-icd-loader
