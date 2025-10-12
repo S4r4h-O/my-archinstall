@@ -20,7 +20,7 @@ RESET="\033[0m"
 
 install_essentials() {
   printf "${GREEN}[CORE]${RESET}: Installing essentials...\n"
-  if pacstrap -K /mnt base linux linux-firmware sof-firmware base-devel \
+  if pacstrap -K /mnt base linux linux-firmware base-devel \
     grub efibootmgr networkmanager amd-ucode git --noconfirm; then
     printf "${GREEN}[CORE]${RESET}: Essentials installed successfuly!\n"
   else
