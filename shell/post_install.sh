@@ -32,27 +32,26 @@ BLUE="\033[34m"
 YELLOW="\033[33m"
 RESET="\033[0m"
 
-printf "${BLUE}[POST INSTALL]${RESET}: Installing yay AUR helper...\n"
+# TODO: replace with paru
+printf "${BLUE}[POST INSTALL]${RESET}: Installing paru AUR helper...\n"
 cd /tmp
 
-if ! git clone https://aur.archlinux.org/yay-bin.git; then
-  printf "${RED}[POST INSTALL]${RESET}: Failed to clone yay-bin. Retrying...\n"
+if ! timeout 30 git clone https://aur.archlinux.org/paru.git; then
+  printf "${RED}[POST INSTALL]${RESET}: Failed to clone paru (timeout or error). Retrying...\n"
   sleep 2
-  if ! git clone https://aur.archlinux.org/yay-bin.git; then
-    printf "${RED}[POST INSTALL]${RESET}: Failed to install yay. Skipping AUR helper.\n"
+  if ! timeout 30 git clone https://aur.archlinux.org/paru.git; then
+    printf "${RED}[POST INSTALL]${RESET}: Failed to install paru (timeout or error). Skipping AUR helper.\n"
     exit 0
   fi
 fi
 
-cd yay-bin
+cd paru
 makepkg --noconfirm
-sudo pacman -U --noconfirm yay-bin-*.pkg.tar.zst
+sudo pacman -U --noconfirm paru-*.pkg.tar.zst
 cd /tmp
-rm -rf yay-bin
+rm -rf paru
 
-yay -Y --gendb
-yay -Syu --devel --noconfirm
-yay -Y --devel --save
+paru -Syu --noconfirm
 
 printf "${BLUE}[POST INSTALL]${RESET}: Installing zsh and Oh My Zsh...\n"
 sudo pacman -S zsh --noconfirm
