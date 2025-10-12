@@ -59,31 +59,40 @@ wireless_connection() {
   local interface=""
 
   printf "${GREEN}[WIRELESS]${RESET}: Available wireless interfaces: \n"
-  ip link
-  printf "${GREEN}[WIRELESS]${RESET}: Trying to unlock most common interface: \n"
+  ip link show | grep -E '^[0-9]+: wl'
 
-  if rfkill unblock wlan0; then
-    printf "${GREEN}[WIRELESS]${RESET}: wlan0 unblocked successfuly... \n"
-    break
-  else
-    while true; do
-      printf "${RED}[WIRELESS]${RESET}: Could not unblock wlan0... Enter you desired interface: "
-      read -r interface
+  printf "${GREEN}[WIRELESS]${RESET}: Attempting to unblock wlan0...\n"
 
-      if [[ -n "$interface" ]]; then
-        if rfkill unblock $interface; then
-          printf "${GREEN}[WIRELESS]${RESET}: ${interface} unblocked successfuly."
-          break
-        else
-          printf "${RED}[WIRELESS]${RESET}: Could not unblock ${interface}, try again"
-          continue
-        fi
-      else
-        continue
-      fi
-
-    done
+  if rfkill unblock wlan0 2>/dev/null; then
+    printf "${GREEN}[WIRELESS]${RESET}: wlan0 unblocked successfuly!\n"
+    return 0
   fi
+
+  printf "${GREEN}[WIRELESS]${RESET}: Failed to unblock wlan0.\n"
+
+  while true; do
+    printf "${GREEN}[WIRELESS]${RESET}: Enter interface name!\n"
+    read -r interface
+
+    if [[ -z "$interface" ]]; then
+      printf "${RED}[WIRELESS]${RESET}: interface cannot be empty.\n"
+      continue
+    fi
+
+    if ! ip link show "$interface" &>/dev/null; then
+      printf "${RED}[WIRELESS]${RESET}: Interface $interface does not exist.\n"
+      continue
+    fi
+
+    if rfkill unblock "$interface"; then
+      printf "${GREEN}[WIRELESS]${RESET}: $interface unblocked successfuly!\n"
+      break
+    else
+      printf "${GREEN}[WIRELESS]${RESET}: Failed to unblock $interface.\n"
+    fi
+
+  done
+
 }
 
 wifi_connect() {
