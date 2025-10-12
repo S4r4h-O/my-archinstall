@@ -19,6 +19,7 @@ kitty
 thunar
 mako
 nwg-look
+wallust
 
 # Fonts
 noto-fonts
