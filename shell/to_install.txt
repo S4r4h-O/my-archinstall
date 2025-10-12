@@ -57,6 +57,7 @@ brightnessctl
 wl-clipboard
 wget
 rofi
+unzip
 
 # Internet
 firefox
