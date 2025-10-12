@@ -45,10 +45,10 @@ set_keymap() {
     fi
 
     if localectl set-keymap --no-convert "$keymap"; then
-      printf "${GREEN}[KEYBOARD]${RESET}: Keymap set to ${keymap}"
+      printf "${GREEN}[KEYBOARD]${RESET}: Keymap set to ${keymap}\n"
       break
     else
-      printf "${RED}[KEYBOARD]${RESET}: Error setting keymap to ${keymap}"
+      printf "${RED}[KEYBOARD]${RESET}: Error setting keymap to ${keymap}\n"
     fi
 
   done
@@ -245,19 +245,27 @@ partitioning_and_mounting() {
 # TODO: Add input to select countries
 # TODO: replace reflector with rate-mirrors
 select_mirrors() {
-  printf "${BLUE}[MIRRORS]${RESET}: Installing reflector...\n"
+  printf "${BLUE}[MIRRORS]${RESET}: Installing rate-mirrors...\n"
 
-  if pacman -S rate-mirrors --noconfirm; then
-    printf "${GREEN}[MIRRORS]${RESET}: Reflector installed.\n"
-    printf "${GREEN}[MIRRORS]${RESET}: Selecting mirrors...\n"
-    rate-mirrors \
-      --save /etc/pacman.d/mirrorlist \
-      --protocol https \
-      --concurrency 4 \
-      arch
-  else
-    printf "${RED}[MIRRORS]${RESET}: Failed to install reflector.\n"
+  if ! pacman -S rate-mirrors --noconfirm; then
+    printf "${RED}[MIRRORS]${RESET}: Failed to install rate-mirrors.\n"
+    return 1
   fi
+
+  printf "${GREEN}[MIRRORS]${RESET}: rate-mirrors installed.\n"
+  printf "${GREEN}[MIRRORS]${RESET}: Selecting mirrors...\n"
+
+  if ! rate-mirrors \
+    --save /etc/pacman.d/mirrorlist \
+    --protocol https \
+    --concurrency 4 \
+    arch; then
+    printf "${RED}[MIRRORS]${RESET}: Failed to generate mirrorlist.\n"
+    return 1
+  fi
+
+  printf "${GREEN}[MIRRORS]${RESET}: Mirrors configured successfuly.\n"
+  return 0
 
 }
 
