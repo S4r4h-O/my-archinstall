@@ -118,9 +118,84 @@ wifi_connect() {
 }
 
 # TODO: dynamic partitioning sizes
-# TODO: split function for readabilty
+partition_disk() {
+  local disk="$1"
+
+  printf "${BLUE}[DISK]${RESET}: Partitioning ${disk}...\n"
+
+  if ! parted --script "/dev/${disk}" \
+    mklabel gpt \
+    mkpart ESP fat32 1MiB 1025MiB \
+    set 1 esp on \
+    mkpart primary ext4 1025MiB -2GiB \
+    mkpart swap linux-swap -2GiB 100%; then
+    printf "${RED}[DISK]${RESET}: Failed to partition ${disk}.\n"
+    return 1
+  fi
+
+  printf "${GREEN}[DISK]${RESET}: ${disk} partitioned successfully!\n"
+  return 0
+}
+
+format_partitions() {
+  local disk="$1"
+
+  printf "${BLUE}[DISK]${RESET}: Formatting partitions...\n"
+
+  mkfs.fat -F32 "/dev/${disk}1" || {
+    printf "${RED}[DISK]${RESET}: Failed to format EFI partition.\n"
+    return 1
+  }
+
+  mkfs.ext4 "/dev/${disk}2" || {
+    printf "${RED}[DISK]${RESET}: Failed to format root partition.\n"
+    return 1
+  }
+
+  mkswap "/dev/${disk}3" || {
+    printf "${RED}[DISK]${RESET}: Failed to format swap partition.\n"
+    return 1
+  }
+
+  swapon "/dev/${disk}3" || {
+    printf "${RED}[DISK]${RESET}: Failed to activate swap.\n"
+    return 1
+  }
+
+  printf "${GREEN}[DISK]${RESET}: Formatted successfully!\n"
+  return 0
+}
+
+mount_partitions() {
+  local disk="$1"
+  local mount_point="$2"
+
+  printf "${BLUE}[DISK]${RESET}: Mounting partitions...\n"
+
+  mount "/dev/${disk}2" "$mount_point" || {
+    printf "${RED}[DISK]${RESET}: Failed to mount root partition.\n"
+    return 1
+  }
+
+  mkdir -p "${mount_point}/boot/efi" || {
+    printf "${RED}[DISK]${RESET}: Failed to create EFI directory.\n"
+    umount "$mount_point"
+    return 1
+  }
+
+  mount "/dev/${disk}1" "${mount_point}/boot/efi" || {
+    printf "${RED}[DISK]${RESET}: Failed to mount EFI partition.\n"
+    umount "$mount_point"
+    return 1
+  }
+
+  printf "${GREEN}[DISK]${RESET}: Mounted successfully!\n"
+  return 0
+}
+
 partitioning_and_mounting() {
   local disk=""
+  local mount_point="/mnt"
 
   printf "${GREEN}[DISK]${RESET}: Available disks: \n"
   lsblk -dn -o NAME,SIZE,TYPE | grep disk
@@ -129,60 +204,21 @@ partitioning_and_mounting() {
     printf "${GREEN}[DISK]${RESET}: Select a disk: "
     read -r disk
 
-    if [[ -n "$disk" ]] && lsblk -dn -o NAME | grep -Fxq "$disk"; then
-      printf "${BLUE}[DISK]${RESET}: Partitioning ${disk}...\n"
-
-      if parted --script "/dev/${disk}" \
-        mklabel gpt \
-        mkpart ESP fat32 1MiB 1025MiB \
-        set 1 esp on \
-        mkpart primary ext4 1025MiB -2GiB \
-        mkpart swap linux-swap -2GiB 100%; then
-        printf "${GREEN}[DISK]${RESET}: ${disk} partitioned successfully!\n"
-
-        printf "${BLUE}[DISK]${RESET}: Now formatting...\n"
-        mkfs.fat -F32 "/dev/${disk}1"
-        status_fat=$?
-
-        mkfs.ext4 "/dev/${disk}2"
-        status_ext4=$?
-
-        mkswap "/dev/${disk}3"
-        status_swap=$?
-
-        swapon "/dev/${disk}3"
-        status_swapon=$?
-
-        if [[ $status_fat -eq 0 ]] && [[ $status_ext4 -eq 0 ]] && [[ $status_swap -eq 0 ]] && [[ $status_swapon -eq 0 ]]; then
-          printf "${GREEN}[DISK]${RESET}: Formatted successfully!\n"
-
-          printf "${GREEN}[DISK]${RESET}: Now mounting...\n"
-          mount "/dev/${disk}2" /mnt
-          status_root_mount=$?
-
-          mkdir -p /mnt/boot/efi
-          status_efi_dir=$?
-
-          mount "/dev/${disk}1" /mnt/boot/efi
-          status_efi_mount=$?
-
-          if [[ $status_root_mount -eq 0 ]] && [[ $status_efi_dir -eq 0 ]] && [[ $status_efi_mount -eq 0 ]]; then
-            printf "${GREEN}[DISK]${RESET}: Mounted successfully!\n"
-          else
-            printf "${RED}[DISK]${RESET}: Failed to mount partitions.\n"
-          fi
-
-        else
-          printf "${RED}[DISK]${RESET}: Failed to format.\n"
-          echo "Status codes: FAT=${status_fat} | EXT4=${status_ext4} | SWAP=${status_swap} | SWAPON=${status_swapon}"
-        fi
-
-        break
-      else
-        printf "${RED}[DISK]${RESET}: Failed to partition ${disk}.\n"
-      fi
-    else
+    if [[ -z "$disk" ]] || ! lsblk -dn -o NAME | grep -Fxq "$disk"; then
       printf "${RED}[DISK]${RESET}: Disk not found, try again.\n"
+      continue
+    fi
+
+    if ! partition_disk "$disk"; then
+      continue
+    fi
+
+    if ! format_partitions "$disk"; then
+      continue
+    fi
+
+    if mount_partitions "$disk" "$mount_point"; then
+      break
     fi
   done
 }
