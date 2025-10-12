@@ -34,12 +34,22 @@ RESET="\033[0m"
 
 printf "${BLUE}[POST INSTALL]${RESET}: Installing yay AUR helper...\n"
 cd /tmp
-git clone https://aur.archlinux.org/yay-bin.git
+
+if ! git clone https://aur.archlinux.org/yay-bin.git; then
+  printf "${RED}[POST INSTALL]${RESET}: Failed to clone yay-bin. Retrying...\n"
+  sleep 2
+  if ! git clone https://aur.archlinux.org/yay-bin.git; then
+    printf "${RED}[POST INSTALL]${RESET}: Failed to install yay. Skipping AUR helper.\n"
+    exit 0
+  fi
+fi
+
 cd yay-bin
 makepkg --noconfirm
 sudo pacman -U --noconfirm yay-bin-*.pkg.tar.zst
 cd /tmp
 rm -rf yay-bin
+
 yay -Y --gendb
 yay -Syu --devel --noconfirm
 yay -Y --devel --save
