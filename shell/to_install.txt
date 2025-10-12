@@ -58,6 +58,8 @@ wl-clipboard
 wget
 rofi
 unzip
+zsh-autosuggestions
+zsh-syntax-highlighting
 
 # Internet
 firefox
