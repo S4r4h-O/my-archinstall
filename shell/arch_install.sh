@@ -12,22 +12,6 @@ YELLOW_BOLD="\033[33m\033[1m"
 BLUE_BOLD="\033[34m\033[1m"
 RESET="\033[0m"
 
-# printf "${BOLD}${GREEN}Enter your hostname:${RESET} "
-# read hostname
-#
-# printf "${BOLD}${GREEN}Enter your username:${RESET} "
-# read username
-#
-#
-# printf "${BOLD}${GREEN}Enter your region:${RESET} "
-# read region
-#
-# printf "${BOLD}${GREEN}Enter your city:${RESET} "
-# read city
-#
-# printf "${BOLD}${GREEN}Enter your locale:${RESET} \n"
-# read locale
-
 set_keymap() {
   printf "${GREEN}[KEYBOARD]${RESET}: Setting up keymap...\n"
 
@@ -103,31 +87,35 @@ wifi_connect() {
   iwctl station list
 
   while true; do
-    printf "${GREEN}[WIRELESS]${RESET}: Select a station to scan for wireless connections: "
+    printf "${GREEN}[WIRELESS]${RESET}: Select a station to scan for wireless connections: \n"
     read -r station
 
-    if [[ -n "$station" ]]; then
-      printf "${GREEN}[WIRELESS]${RESET}: Scanning for networks on station $station...\n"
-      if iwctl station "$station" get-networks; then
-        printf "${GREEN}[WIRELESS]${RESET}: Select a Wi-Fi connection: "
-        read -r wifi
-
-        if [[ -n "$wifi" ]]; then
-          if iwctl station "$station" connect "$wifi"; then
-            printf "${GREEN}[WIRELESS]${RESET}: Connected successfully.\n"
-            break
-          else
-            printf "${RED}[WIRELESS]${RESET}: Could not connect. Please try again.\n"
-          fi
-        else
-          printf "${RED}[WIRELESS]${RESET}: No Wi-Fi network selected. Please try again.\n"
-        fi
-      else
-        printf "${RED}[WIRELESS]${RESET}: Failed to scan for networks. Please try again.\n"
-      fi
-    else
-      printf "${RED}[WIRELESS]${RESET}: No station selected. Please try again.\n"
+    if [[ -z "$station" ]]; then
+      printf "${GREEN}[WIRELESS]${RESET}: Enter a station!\n"
+      continue
     fi
+
+    printf "${BLUE}[WIRELESS]{RESET}: Scanning networks on ${station}"
+    if ! iwctl station "$station" get-networks; then
+      printf "${RED}[WIRELESS]${RESET}: Failed to scan. Invalid station or scan error.\n"
+    fi
+
+    printf "${GREEN}[WIRELESS]${RESET}: Select a wifi network: "
+    read -r wifi
+
+    if [[ -z "$wifi" ]]; then
+      printf "${RED}[WIRELESS]${RESET}: Wifi cannot be empty.\n"
+      continue
+    fi
+
+    if ! iwctl station "$station" connect "$wifi"; then
+      printf "${RED}[WIRELESS]${RESET}: Could not connect, please try again.\n"
+      continue
+    fi
+
+    printf "${GREEN}[WIRELESS]${RESET}: Connected to $wifi successfuly.\n"
+    return 0
+
   done
 }
 
