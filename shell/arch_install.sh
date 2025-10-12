@@ -61,10 +61,12 @@ run_fstab() {
     printf "${GREEN}[SYSTEM]${RESET}: fstab successfuly!\n"
   else
     printf "${RED}[SYSTEM]${RESET}: Failed to run fstab.\n"
+    exit 1
   fi
 }
 
 # TODO: better valitdation
+# TODO: should exit if fail
 system_setting() {
   printf "${GREEN}[SYSTEM]${RESET}: Setting up network configs, core services and grub...\n"
   local root_passwd=""
@@ -174,6 +176,7 @@ This process requires network connection, reexecute the script if you need wifi.
   install_essentials
   run_fstab
   system_setting
+  printf "${GREEN}[SUCCESS]${RESET}: Arch Linux installed successfuly!\n"
 }
 
 main
