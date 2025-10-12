@@ -31,8 +31,10 @@ ttf-jetbrains-mono-nerd
 # Greeter
 ly
 
-# Launcher
-rofi
+# Languages
+lua
+rust
+nodejs
 
 # Multimedia and connectivity
 bluez
@@ -50,10 +52,10 @@ fzf
 btop
 ranger
 neovim
-rust
 brightnessctl
 wl-clipboard
 wget
+rofi
 
 # Internet
 firefox
