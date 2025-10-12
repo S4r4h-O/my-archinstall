@@ -52,7 +52,7 @@ wireless_connection() {
     return 0
   fi
 
-  printf "${GREEN}[WIRELESS]${RESET}: Failed to unblock wlan0.\n"
+  printf "${RED}[WIRELESS]${RESET}: Failed to unblock wlan0.\n"
 
   while true; do
     printf "${GREEN}[WIRELESS]${RESET}: Enter interface name!\n"
@@ -72,7 +72,7 @@ wireless_connection() {
       printf "${GREEN}[WIRELESS]${RESET}: $interface unblocked successfuly!\n"
       break
     else
-      printf "${GREEN}[WIRELESS]${RESET}: Failed to unblock $interface.\n"
+      printf "${RED}[WIRELESS]${RESET}: Failed to unblock $interface.\n"
     fi
 
   done
@@ -231,11 +231,11 @@ partitioning_and_mounting() {
 }
 
 # TODO: Add input to select countries
-# TODO: replace reflector with rate-mirrors
+# TODO: rate-mirrors is from AUR, we need to install it first
 select_mirrors() {
   printf "${BLUE}[MIRRORS]${RESET}: Installing rate-mirrors...\n"
 
-  if ! pacman -S rate-mirrors --noconfirm; then
+  if ! pacman -Sy rate-mirrors --noconfirm; then
     printf "${RED}[MIRRORS]${RESET}: Failed to install rate-mirrors.\n"
     return 1
   fi
@@ -248,8 +248,16 @@ select_mirrors() {
     --protocol https \
     --concurrency 4 \
     arch; then
-    printf "${RED}[MIRRORS]${RESET}: Failed to generate mirrorlist.\n"
-    return 1
+    printf "${RED}[MIRRORS]${RESET}: rate-mirrors failed. Using fallback...\n"
+
+    if ! curl -o /etc/pacman.d/mirrorlist https://archlinux.org/mirrorlist/all/; then
+      printf "${RED}[MIRRORS]${RESET}: Failed to download fallback mirrorlist.\n"
+      return 1
+    fi
+
+    sed -i 's/^#Server/Server/' /etc/pacman.d/mirrorlist
+    printf "${GREEN}[MIRRORS]${RESET}: Fallback mirrorlist configured.\n"
+    return 0
   fi
 
   printf "${GREEN}[MIRRORS]${RESET}: Mirrors configured successfuly.\n"
