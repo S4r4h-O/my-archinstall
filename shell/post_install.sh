@@ -53,9 +53,12 @@ cp my-linux/zsh/aliases.zsh /home/sarah/.oh-my-zsh/custom/aliases.zsh
 rm -rf my-linux
 SARAH_EOF
 
+printf "${BLUE}[POST INSTALL]${RESET}: Setting default shell to zsh...\n"
+chsh -s /bin/zsh sarah
+
 printf "${BLUE}[POST INSTALL]${RESET}: Setting up greeter...\n"
 systemctl enable ly.service
-tee /etc/ly/config.ini > /dev/null <<'LY_EOF'
+cat >> /etc/ly/config.ini <<'LY_EOF'
 default_user=sarah
 default_session=Hyprland
 LY_EOF
