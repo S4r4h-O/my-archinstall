@@ -234,18 +234,18 @@ partitioning_and_mounting() {
 select_mirrors() {
   printf "${BLUE}[MIRRORS]${RESET}: Installing reflector...\n"
 
-  if pacman -Sy --noconfirm rate-mirrors; then
+  if pacman -S rate-mirrors --noconfirm; then
     printf "${GREEN}[MIRRORS]${RESET}: Reflector installed.\n"
+    printf "${GREEN}[MIRRORS]${RESET}: Selecting mirrors...\n"
+    rate-mirrors \
+      --save /etc/pacman.d/mirrorlist \
+      --protocol https \
+      --concurrency 4 \
+      arch
   else
     printf "${RED}[MIRRORS]${RESET}: Failed to install reflector.\n"
   fi
-  printf "${GREEN}[MIRRORS]${RESET}: Selecting mirrors...\n"
 
-  rate-mirrors \
-    --save /etc/pacman.d/mirrorlist \
-    --protocol https \
-    --concurrency 4 \
-    arch
 }
 
 install_essentials() {
