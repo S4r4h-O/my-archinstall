@@ -121,15 +121,20 @@ wifi_connect() {
 # TODO: dynamic partitioning sizes
 partition_disk() {
   local disk="$1"
+  local disk_size
 
   printf "${BLUE}[DISK]${RESET}: Partitioning ${disk}...\n"
+
+  # Get disk size in MiB
+  disk_size=$(parted "/dev/${disk}" unit MiB print | grep "^Disk" | awk '{print $3}' | sed 's/MiB//')
+  swap_start=$((disk_size - 2048))
 
   if ! parted --script "/dev/${disk}" \
     mklabel gpt \
     mkpart ESP fat32 1MiB 1025MiB \
     set 1 esp on \
-    mkpart primary ext4 1025MiB -2GiB \
-    mkpart swap linux-swap -2GiB 100%; then
+    mkpart primary ext4 1025MiB ${swap_start}MiB \
+    mkpart primary linux-swap ${swap_start}MiB 100%; then
     printf "${RED}[DISK]${RESET}: Failed to partition ${disk}.\n"
     return 1
   fi
@@ -229,14 +234,18 @@ partitioning_and_mounting() {
 select_mirrors() {
   printf "${BLUE}[MIRRORS]${RESET}: Installing reflector...\n"
 
-  if pacman -Sy --noconfiirm reflector; then
+  if pacman -Sy --noconfirm rate-mirrors; then
     printf "${GREEN}[MIRRORS]${RESET}: Reflector installed.\n"
   else
     printf "${RED}[MIRRORS]${RESET}: Failed to install reflector.\n"
   fi
   printf "${GREEN}[MIRRORS]${RESET}: Selecting mirrors...\n"
 
-  reflector --latest 10 --fastest 5 --protocol http --download-timeout 10 --save /etc/pacman.d/mirrorlist
+  rate-mirrors \
+    --save /etc/pacman.d/mirrorlist \
+    --protocol https \
+    --concurrency 4 \
+    arch
 }
 
 install_essentials() {
