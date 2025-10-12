@@ -1,0 +1,56 @@
+# Desktop Environment
+hyprland
+hyprpaper
+waybar
+hyprlock
+hypridle
+hyprsunset
+xdg-desktop-portal-hyprland
+xdg-users-dirs
+xorg-xwayland
+polkit-kde-agent
+polkit-gnome
+qt5-wayland
+qt6-wayland
+qt5ct
+qt6ct
+kitty
+thunar
+mako
+nwg-look
+
+# Fonts
+noto-fonts
+noto-color-emoji
+ttf-nerd-fonts-symbols
+ttf-font-awesome
+ttf-jetbrains-mono-nerd
+ttf-fira-code-nerd
+
+# Greeter
+ly
+
+# Launcher
+rofi
+
+# Multimedia and connectivity
+bluez
+bluez-utils
+blueman
+pipewire
+pipewire-pulse
+wireplumber
+alsautils
+pavucontrol
+
+# Utils
+fzf
+btop
+ranger
+neovim
+rust
+brightnessctl
+wl-clipboard
+
+# Internet
+firefox
