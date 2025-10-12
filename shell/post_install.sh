@@ -32,26 +32,32 @@ BLUE="\033[34m"
 YELLOW="\033[33m"
 RESET="\033[0m"
 
-# TODO: replace with paru
 printf "${BLUE}[POST INSTALL]${RESET}: Installing paru AUR helper...\n"
 cd /tmp
 
 if ! timeout 30 git clone https://aur.archlinux.org/paru.git; then
-  printf "${RED}[POST INSTALL]${RESET}: Failed to clone paru (timeout or error). Retrying...\n"
+  printf "${RED}[POST INSTALL]${RESET}: Failed to clone paru. Retrying...\n"
   sleep 2
   if ! timeout 30 git clone https://aur.archlinux.org/paru.git; then
-    printf "${RED}[POST INSTALL]${RESET}: Failed to install paru (timeout or error). Skipping AUR helper.\n"
-    exit 0
+    printf "${RED}[POST INSTALL]${RESET}: Failed to install paru. Skipping AUR helper.\n"
   fi
 fi
 
-cd paru
-makepkg --noconfirm
-sudo pacman -U --noconfirm paru-*.pkg.tar.zst
-cd /tmp
-rm -rf paru
-
-paru -Syu --noconfirm
+if [[ -d paru ]]; then
+  cd paru
+  if makepkg --noconfirm && sudo pacman -U --noconfirm paru-*.pkg.tar.zst; then
+    printf "${GREEN}[POST INSTALL]${RESET}: paru installed successfully.\n"
+    cd /tmp
+    rm -rf paru
+    paru -Syu --noconfirm
+  else
+    printf "${RED}[POST INSTALL]${RESET}: Failed to build/install paru.\n"
+    cd /tmp
+    rm -rf paru
+  fi
+else
+  printf "${YELLOW}[POST INSTALL]${RESET}: Skipping paru installation.\n"
+fi
 
 printf "${BLUE}[POST INSTALL]${RESET}: Installing zsh and Oh My Zsh...\n"
 sudo pacman -S zsh --noconfirm
