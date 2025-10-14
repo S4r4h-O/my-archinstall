@@ -64,6 +64,8 @@ rofi
 unzip
 zsh-autosuggestions
 zsh-syntax-highlighting
+yad
+pamixer
 
 # Internet
 firefox
