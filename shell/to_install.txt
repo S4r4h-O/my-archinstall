@@ -50,6 +50,7 @@ pavucontrol
 
 # Utils
 fzf
+zoxide
 btop
 ranger
 neovim
