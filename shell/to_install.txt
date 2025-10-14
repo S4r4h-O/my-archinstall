@@ -44,7 +44,7 @@ uv
 bluez
 bluez-utils
 blueman
-nm-applet
+network-manager-applet
 pipewire
 pipewire-audio
 pipewire-pulse
