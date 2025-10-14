@@ -67,6 +67,7 @@ zsh-autosuggestions
 zsh-syntax-highlighting
 yad
 pamixer
+tmux
 
 # Internet
 firefox
