@@ -44,6 +44,7 @@ uv
 bluez
 bluez-utils
 blueman
+nm-applet
 pipewire
 pipewire-audio
 pipewire-pulse
