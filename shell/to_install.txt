@@ -36,6 +36,9 @@ ly
 lua
 rust
 nodejs
+npm
+pnpm
+uv
 
 # Multimedia and connectivity
 bluez

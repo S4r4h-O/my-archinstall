@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# TODO: activate xdg-desktop-portal / xdg-desktop-portal-hyprland
+
 cp ./to_install.txt /mnt/to_install.txt
 arch-chroot /mnt /bin/bash <<'EOF'
 set -e
