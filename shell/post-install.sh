@@ -14,6 +14,7 @@ _isInstalled() {
 }
 
 _installParu() {
+  cd /tmp
   if ! timeout 30 git clone "https://aur.archlinux.org/paru.git"; then
     printf "${RED}[POST INSTALL]${RESET}: Failed to clone paru. Retrying...\n"
     sleep 2
