@@ -41,6 +41,7 @@ languages=(
 general=(
   "ly"
   "lsd"
+  "ufw"
   "bluez"
   "bluez-utils"
   "blueman"
