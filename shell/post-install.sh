@@ -147,8 +147,17 @@ cd /tmp
 git clone "https://github.com/S4r4h-O/my-linux.git"
 git clone "https://github.com/S4r4h-O/my-lazyvim.git"
 
-cp my-linux/zsh/.zshrc /home/sarah/.zshrc && cp my-linux/zsh/aliases.zsh /home/sarah/.oh-my-zsh/custom/aliases.zsh
+# zsh
+ohMyZshPath="$HOME/.oh_my_zsh"
+cp my-linux/zsh/.zshrc /home/sarah/.zshrc
+if _checkDirExists "${ohMyZshPath}"; then
+  cp my-linux/zsh/aliases.zsh "$ohMyZshPath/custom/aliases.zsh"
+else
+  mkdir -p "$ohMyZshPath/custom"
+  cp my-linux/zsh/aliases.zsh "$ohMyZshPath/custom/aliases.zsh"
+fi
 
+# Hyprland
 hyprPath="$HOME/.config/hypr/"
 if _checkDirExists "${hyprPath}"; then
   rm -rf "${hyprPath}"
