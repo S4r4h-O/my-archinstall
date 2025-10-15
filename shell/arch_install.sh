@@ -9,7 +9,7 @@ source ./logging.sh
 install_essentials() {
   printf "${GREEN}[CORE]${RESET}: Installing essentials...\n"
   if pacstrap -K /mnt base linux linux-firmware base-devel \
-    grub efibootmgr networkmanager amd-ucode git --noconfirm; then
+    grub efibootmgr networkmanager git --noconfirm; then
     printf "${GREEN}[CORE]${RESET}: Essentials installed successfuly!\n"
   else
     printf "${RED}[CORE]${RESET}: Error installing essentials.\n"
