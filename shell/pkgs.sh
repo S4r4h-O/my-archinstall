@@ -40,6 +40,7 @@ languages=(
 
 general=(
   "ly"
+  "lsd"
   "bluez"
   "bluez-utils"
   "blueman"
