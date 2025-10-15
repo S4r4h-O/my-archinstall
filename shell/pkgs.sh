@@ -78,6 +78,7 @@ tools=(
   "xdg-user-dirs-gtk"
   "figlet"
   "lolcat"
+  "trash-cli"
 )
 
 drivers=(
