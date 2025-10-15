@@ -1,0 +1,85 @@
+desktop_environ=(
+  "hyprland"
+  "hyprpaper"
+  "waybar"
+  "hyprlock"
+  "hypridle"
+  "hyprsunset"
+  "xorg-xwayland"
+  "polkit-kde-agent"
+  "polkit-gnome"
+  "qt5-wayland"
+  "qt6-wayland"
+  "qt5ct"
+  "qt6ct"
+  "kitty"
+  "thunar"
+  "mako"
+  "nwg-look"
+  # wallust
+)
+
+fonts=(
+  "noto-fonts"
+  "noto-fonts-emoji"
+  "ttf-nerd-fonts-symbols"
+  "ttf-font-awesome"
+  "ttf-jetbrains-mono-nerd"
+  # "nerd-fonts-fire-code"
+)
+
+languages=(
+  "lua"
+  "rust"
+  "nodejs"
+  "npm"
+  "pnpm"
+  "uv"
+)
+
+general=(
+  "ly"
+  "bluez"
+  "bluez-utils"
+  "blueman"
+  "network-manager-applet"
+  "pipewire"
+  "pipewire-audio"
+  "pipewire-pulse"
+  "wireplumber"
+  "alsa-utils"
+  "unzip"
+  "firefox"
+)
+
+tools=(
+  "fzf"
+  "zsh"
+  "pavucontrol"
+  "zoxide"
+  "btop"
+  "ranger"
+  "neovim"
+  "brightnessctl"
+  "wl-clipboard"
+  "wget"
+  "rofi"
+  "zsh-autosuggestions"
+  "zsh-syntax-highlighting"
+  "yad"
+  "pamixer"
+  "tmux"
+  "jq"
+  "xdg-desktop-portal-hyprland"
+  "xdg-user-dirs"
+  "xdg-user-dirs-gtk"
+)
+
+drivers=(
+  "amd-ucode"
+  "mesa"
+  "vulkan-radeon"
+  "libva-mesa-driver"
+  "mesa-vdpau"
+  "vulkan-icd-loader"
+)

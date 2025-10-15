@@ -1,7 +1,6 @@
-# TODO: better valitdation
-# TODO: should exit if fail
 system_setting() {
   printf "${GREEN}[SYSTEM]${RESET}: Setting up network configs, core services and grub...\n"
+
   local root_passwd=""
   local user_passwd=""
   local username=""
@@ -16,7 +15,6 @@ system_setting() {
     read -r region
     printf "${GREEN}[SYSTEM]${RESET}: Your city: \n"
     read -r city
-
     if [[ -z "$region" || -z "$city" ]]; then
       printf "${RED}[SYSTEM]${RESET}: Enter city and region!\n"
       continue
@@ -24,7 +22,6 @@ system_setting() {
 
     printf "${GREEN}[SYSTEM]${RESET}: Enter system locale: \n"
     read -r locale
-
     if [[ -z "$locale" ]]; then
       printf "${RED}[SYSTEM]${RESET}: Enter a locale!\n"
       continue
@@ -32,7 +29,6 @@ system_setting() {
 
     printf "${GREEN}[SYSTEM]${RESET}: Your hostname: \n"
     read -r hostname
-
     if [[ -z "$hostname" ]]; then
       printf "${RED}[SYSTEM]${RESET}: Enter a hostname!\n"
       continue
@@ -41,7 +37,6 @@ system_setting() {
     printf "${GREEN}[SYSTEM]${RESET}: Root password: \n"
     read -rs root_passwd
     echo
-
     if [[ -z "$root_passwd" ]]; then
       printf "${RED}[SYSTEM]${RESET}: Enter a password!\n"
       continue
@@ -52,14 +47,13 @@ system_setting() {
     printf "${GREEN}[SYSTEM]${RESET}: Your user password: \n"
     read -rs user_passwd
     echo
-
     if [[ -z "$username" || -z "$user_passwd" ]]; then
       printf "${RED}[SYSTEM]${RESET}: Enter an username and password!\n"
       continue
     fi
 
-    # Execute commands inside arch-chroot
     arch-chroot "$mount_point" /bin/bash <<EOF
+set -e
 ln -sf "/usr/share/zoneinfo/${region}/${city}" /etc/localtime
 hwclock --systohc
 echo "LANG=${locale}" > /etc/locale.conf
@@ -77,6 +71,11 @@ grub-install --target=x86_64-efi --efi-directory=/boot/efi/ --bootloader-id=GRUB
 grub-mkconfig -o /boot/grub/grub.cfg
 EOF
 
-    break
+    if [[ $? -eq 0 ]]; then
+      printf "${GREEN}[SYSTEM]${RESET}: System configuration completed successfully\n"
+      break
+    else
+      printf "${RED}[SYSTEM]${RESET}: Configuration failed, please try again\n"
+    fi
   done
 }
