@@ -52,7 +52,7 @@ _installPackages() {
 
   if [[ ${#to_install[@]} -gt 0 ]]; then
     log "INFO" "Installing ${#to_install[@]} packages"
-    sudo acman -S --noconfirm "${to_install[@]}" || {
+    sudo pacman -S --noconfirm "${to_install[@]}" || {
       logError "Some packages failed to install."
       exit 1
     }
