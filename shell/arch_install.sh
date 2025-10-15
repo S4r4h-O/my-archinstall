@@ -29,25 +29,7 @@ run_fstab() {
 }
 
 main() {
-  while true; do
-    printf "${BOLD}${GREEN}Want to setup wireless connections?: (y/n)${RESET} "
-    read -r is_wireless
-
-    if [[ "$is_wireless" == "y" ]]; then
-      # from ./connectivity.sh
-      wireless_connection
-      wifi_connect
-      break
-    elif [[ "$is_wireless" == "n" ]]; then
-      printf "${YELLOW}[WIRELESS]${RESET}: Skipping wireless setup. ""\
-This process requires network connection, reexecute the script if you need wifi.\n"
-      break
-    else
-      printf "${RED}[ERROR]${RESET}: Invalid option. Please try again.\n"
-      continue
-    fi
-  done
-
+  connectivity              # ./connectivity.sh
   set_keymap                #./keymap.sh
   partitioning_and_mounting # ./storage.sh
   select_mirrors            # ./connectivity.sh

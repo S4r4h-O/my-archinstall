@@ -108,3 +108,23 @@ select_mirrors() {
     printf "${GREEN}[MIRRORS]${RESET}: Mirrors configured successfully.\n"
   fi
 }
+
+connectivity() {
+  while true; do
+    printf "${BOLD}${GREEN}Want to setup wireless connections?: (y/n)${RESET} "
+    read -r is_wireless
+
+    if [[ "$is_wireless" == "y" ]]; then
+      wireless_connection
+      wifi_connect
+      break
+    elif [[ "$is_wireless" == "n" ]]; then
+      printf "${YELLOW}[WIRELESS]${RESET}: Skipping wireless setup. ""\
+This process requires network connection, reexecute the script if you need wifi.\n"
+      break
+    else
+      printf "${RED}[ERROR]${RESET}: Invalid option. Please try again.\n"
+      continue
+    fi
+  done
+}
