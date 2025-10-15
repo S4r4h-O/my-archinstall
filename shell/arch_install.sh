@@ -1,22 +1,10 @@
 #!/bin/bash
 
-# TODO: split this code into multiple files
-
 source ./storage.sh
 source ./connectivity.sh
 source ./keymap.sh
 source ./chroot.sh
-
-RED="\033[31m"
-GREEN="\033[32m"
-YELLOW="\033[33m"
-BLUE="\033[34m"
-BOLD="\033[1m"
-RED_BOLD="\033[31m\033[1m"
-GREEN_BOLD="\033[32m\033[1m"
-YELLOW_BOLD="\033[33m\033[1m"
-BLUE_BOLD="\033[34m\033[1m"
-RESET="\033[0m"
+source ./logging.sh
 
 install_essentials() {
   printf "${GREEN}[CORE]${RESET}: Installing essentials...\n"
@@ -67,7 +55,7 @@ This process requires network connection, reexecute the script if you need wifi.
   run_fstab
   system_setting # ./chroot.sh
   printf "${GREEN}[SUCCESS]${RESET}: Arch Linux installed successfuly!\n"
-  cp ./post-install.sh /mnt/home/${username}
+  cp ./post-install.sh ./_lib.sh ./logging.sh ./pkgs.sh /mnt/home/${username}
 }
 
 main
