@@ -143,9 +143,13 @@ figlet "Sarah O. configs" | lolcat
 # --------------------------------------------------------------
 cd /tmp
 git clone "https://github.com/S4r4h-O/my-linux.git"
+git clone "https://github.com/S4r4h-O/my-lazyvim.git"
+
 cp my-linux/zsh/.zshrc /home/sarah/.zshrc && cp my-linux/zsh/aliases.zsh /home/sarah/.oh-my-zsh/custom/aliases.zsh
 
 cp -r my-linux/hypr ~/.config
 cp -r my-linux/mako ~/.config
 cp -r my-linux/waybar ~/.config
 cp -r my-linux/rofi ~/.config
+
+cp -r my-lazyvim ~/.config/nvim
