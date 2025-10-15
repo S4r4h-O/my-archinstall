@@ -31,6 +31,7 @@ fonts=(
 languages=(
   "lua"
   "rust"
+  "cargo"
   "nodejs"
   "npm"
   "pnpm"
