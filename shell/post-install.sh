@@ -152,9 +152,11 @@ ohMyZshPath="$HOME/.oh_my_zsh"
 cp my-linux/zsh/.zshrc /home/sarah/.zshrc
 if _checkDirExists "${ohMyZshPath}"; then
   cp my-linux/zsh/aliases.zsh "$ohMyZshPath/custom/aliases.zsh"
+  cp my-linux/zsh/.zshrc "$HOME/"
 else
   mkdir -p "$ohMyZshPath/custom"
   cp my-linux/zsh/aliases.zsh "$ohMyZshPath/custom/aliases.zsh"
+  cp my-linux/zsh/.zshrc "$HOME/"
 fi
 
 # Hyprland
