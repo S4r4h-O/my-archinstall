@@ -7,23 +7,23 @@ source ./chroot.sh
 source ./logging.sh
 
 install_essentials() {
-  printf "${GREEN}[CORE]${RESET}: Installing essentials...\n"
+  log "CORE" "Installing essentials..."
   if pacstrap -K /mnt base linux linux-firmware base-devel \
     grub efibootmgr networkmanager git --noconfirm; then
-    printf "${GREEN}[CORE]${RESET}: Essentials installed successfuly!\n"
+    log "CORE" "Essentials installed successfuly!"
   else
-    printf "${RED}[CORE]${RESET}: Error installing essentials.\n"
+    logError "Error installing essentials."
     exit 1
   fi
 }
 
 run_fstab() {
-  printf "${GREEN}[SYSTEM]${RESET}: Running fstab...\n"
+  log "SYSTEM" "Running fstab..."
 
   if genfstab -U /mnt >>/mnt/etc/fstab; then
-    printf "${GREEN}[SYSTEM]${RESET}: fstab successfuly!\n"
+    log "SYSTEM" "fstab successfuly!"
   else
-    printf "${RED}[SYSTEM]${RESET}: Failed to run fstab.\n"
+    logError "SYSTEM" "Failed to run fstab"
     exit 1
   fi
 }
@@ -37,7 +37,7 @@ main() {
   run_fstab
   system_setting # ./chroot.sh
   printf "${GREEN}[SUCCESS]${RESET}: Arch Linux installed successfuly!\n"
-  cp ./post-install.sh ./_lib.sh ./logging.sh ./pkgs.sh /mnt/home/${username}
 }
 
 main
+cp ./post-install.sh ./_lib.sh ./logging.sh ./pkgs.sh /mnt/home/${username}
