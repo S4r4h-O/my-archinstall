@@ -67,7 +67,7 @@ This process requires network connection, reexecute the script if you need wifi.
   run_fstab
   system_setting # ./chroot.sh
   printf "${GREEN}[SUCCESS]${RESET}: Arch Linux installed successfuly!\n"
-  bash ./post_install.sh
+  cp ./post-install.sh /mnt/home/${username}
 }
 
 main

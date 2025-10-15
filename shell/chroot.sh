@@ -3,8 +3,8 @@ system_setting() {
 
   local root_passwd=""
   local user_passwd=""
-  local username=""
-  local hostname=""
+  declare -g username
+  declare -g hostname
   local region=""
   local city=""
   local locale=""
@@ -33,6 +33,7 @@ system_setting() {
       printf "${RED}[SYSTEM]${RESET}: Enter a hostname!\n"
       continue
     fi
+    export hostname
 
     printf "${GREEN}[SYSTEM]${RESET}: Root password: \n"
     read -rs root_passwd
@@ -51,6 +52,7 @@ system_setting() {
       printf "${RED}[SYSTEM]${RESET}: Enter an username and password!\n"
       continue
     fi
+    export username
 
     arch-chroot "$mount_point" /bin/bash <<EOF
 set -e
