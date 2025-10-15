@@ -73,6 +73,8 @@ tools=(
   "xdg-desktop-portal-hyprland"
   "xdg-user-dirs"
   "xdg-user-dirs-gtk"
+  "figlet"
+  "lolcat"
 )
 
 drivers=(
