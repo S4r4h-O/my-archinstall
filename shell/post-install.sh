@@ -142,13 +142,19 @@ figlet "Sarah O. configs" | lolcat
 # --------------------------------------------------------------
 # My personal configs
 # --------------------------------------------------------------
+# TODO: add error validation
 cd /tmp
 git clone "https://github.com/S4r4h-O/my-linux.git"
 git clone "https://github.com/S4r4h-O/my-lazyvim.git"
 
 cp my-linux/zsh/.zshrc /home/sarah/.zshrc && cp my-linux/zsh/aliases.zsh /home/sarah/.oh-my-zsh/custom/aliases.zsh
 
+hyprPath="$HOME/.config/hypr/"
+if _checkDirExists "${hyprPath}"; then
+  rm -rf "${hyprPath}"
+fi
 cp -r my-linux/hypr ~/.config
+
 cp -r my-linux/mako ~/.config
 cp -r my-linux/waybar ~/.config
 cp -r my-linux/rofi ~/.config
