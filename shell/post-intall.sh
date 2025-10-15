@@ -52,7 +52,7 @@ _installPackages() {
 
   if [[ ${#to_install[@]} -gt 0 ]]; then
     log "INFO" "Installing ${#to_install[@]} packages"
-    pacman -S --noconfirm "${to_install[@]}" || {
+    sudo acman -S --noconfirm "${to_install[@]}" || {
       logError "Some packages failed to install."
       exit 1
     }
@@ -60,6 +60,23 @@ _installPackages() {
 }
 
 log "POST INSTALL" "Installing post install packages..."
+# --------------------------------------------------------------
+# Install figlet and loolcat
+# --------------------------------------------------------------
+if [[ $(_checkCommandExists "figlet" == 0) ]]; then
+  log "POST INSTALL" "gum is already installed."
+else
+  logWarning "The installer requires figlet. figlet will be installed now."
+  sudo pacman --noconfirm -S figlet
+fi
+
+if [[ $(_checkCommandExists "lolcat" == 0) ]]; then
+  log "POST INSTALL" "lolcat is already installed."
+else
+  logWarning "The installer requires lolcat. lolcat will be installed now."
+  sudo pacman --noconfirm -S lolcat
+fi
+
 # --------------------------------------------------------------
 # Install Paru if needed
 # --------------------------------------------------------------
@@ -118,10 +135,17 @@ default_user=sarah
 default_session=Hyprland
 EOF
 
+figlet "Finished!" | lolcat
+
+figlet "Sarah O. configs" | lolcat
 # --------------------------------------------------------------
 # My personal configs
 # --------------------------------------------------------------
 cd /tmp
 git clone "https://github.com/S4r4h-O/my-linux.git"
-cp my-linux/zsh/.zshrc /home/sarah/.zshrc
-cp my-linux/zsh/aliases.zsh /home/sarah/.oh-my-zsh/custom/aliases.zsh
+cp my-linux/zsh/.zshrc /home/sarah/.zshrc && cp my-linux/zsh/aliases.zsh /home/sarah/.oh-my-zsh/custom/aliases.zsh
+
+cp -r my-linux/hypr ~/.config
+cp -r my-linux/mako ~/.config
+cp -r my-linux/waybar ~/.config
+cp -r my-linux/rofi ~/.config
