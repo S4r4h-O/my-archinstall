@@ -9,3 +9,4 @@
 - [x] Validation for user input
 - [x] Not compatible with SSDs/HDs yet (still testing in a vm)
 - [ ] (Post Install) DHCP (dhclient)
+- [ ] (Post Install) Network Gateway
