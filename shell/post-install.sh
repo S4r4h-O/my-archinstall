@@ -142,31 +142,25 @@ figlet "Sarah O. configs" | lolcat
 # My personal configs
 # --------------------------------------------------------------
 # TODO: add error validation
-cd /tmp
-git clone "https://github.com/S4r4h-O/my-linux.git"
-git clone "https://github.com/S4r4h-O/my-lazyvim.git"
+tmpDir="/tmp/dotfiles-$$"
+mkdir -p "$tmpDir" && cd "$tmpDir" || exit 1
+
+git clone "https://github.com/S4r4h-O/my-linux.git" || exit 1
+git clone "https://github.com/S4r4h-O/my-lazyvim.git" || exit 1
 
 # zsh
-ohMyZshPath="$HOME/.oh_my_zsh"
-cp my-linux/zsh/.zshrc /home/sarah/.zshrc
-if _checkDirExists "${ohMyZshPath}"; then
-  cp my-linux/zsh/aliases.zsh "$ohMyZshPath/custom/aliases.zsh"
-  cp my-linux/zsh/.zshrc "$HOME/"
-else
-  mkdir -p "$ohMyZshPath/custom"
-  cp my-linux/zsh/aliases.zsh "$ohMyZshPath/custom/aliases.zsh"
-  cp my-linux/zsh/.zshrc "$HOME/"
-fi
+ohMyZshPath="$HOME/.oh-my-zsh"
+mkdir -p "$ohMyZshPath/custom"
+cp my-linux/zsh/.zshrc "$HOME/"
+cp my-linux/zsh/aliases.zsh "$ohMyZshPath/custom/"
 
 # Hyprland
-hyprPath="$HOME/.config/hypr/"
-if _checkDirExists "${hyprPath}"; then
-  rm -rf "${hyprPath}"
-fi
-cp -r my-linux/hypr ~/.config
+rm -rf "$HOME/.config/hypr"
+cp -r my-linux/{hypr,mako,waybar,rofi} "$HOME/.config/"
 
-cp -r my-linux/mako ~/.config
-cp -r my-linux/waybar ~/.config
-cp -r my-linux/rofi ~/.config
+# Neovim
+[[ -d "$HOME/.config/nvim" ]] && mv "$HOME/.config/nvim" "$HOME/.config/nvim.bak.$(date +%s)"
+cp -r my-lazyvim "$HOME/.config/nvim"
 
-cp -r my-lazyvim ~/.config/nvim
+cd /
+rm -rf "$tmpDir"
