@@ -14,29 +14,28 @@ _isInstalled() {
 }
 
 _installParu() {
-  cd /tmp
-  if ! timeout 30 git clone "https://aur.archlinux.org/paru.git"; then
-    printf "${RED}[POST INSTALL]${RESET}: Failed to clone paru. Retrying...\n"
+  local paru_dir="/tmp/paru"
+  rm -rf "$paru_dir"
+
+  if ! timeout 30 git clone "https://aur.archlinux.org/paru.git" "$paru_dir"; then
+    printf "${RED}[POST INSTALL]${RESET}: Clone failed. Retrying...\n"
     sleep 2
-    if ! timeout 30 git clone "https://aur.archlinux.org/paru.git"; then
-      printf "${RED}[POST INSTALL]${RESET}: Failed to install paru. Skipping AUR helper.\n"
+    rm -rf "$paru_dir"
+    if ! timeout 30 git clone "https://aur.archlinux.org/paru.git" "$paru_dir"; then
+      printf "${RED}[POST INSTALL]${RESET}: Clone failed twice. Aborting.\n"
+      return 1
     fi
   fi
 
-  if [[ -d paru ]]; then
-    cd paru
-    if makepkg --noconfirm && sudo pacman -U --noconfirm paru-*.pkg.tar.zst; then
-      printf "${GREEN}[POST INSTALL]${RESET}: paru installed successfully.\n"
-      cd /tmp
-      rm -rf paru
-      paru -Syu --noconfirm
-    else
-      printf "${RED}[POST INSTALL]${RESET}: Failed to build/install paru.\n"
-      cd /tmp
-      rm -rf paru
-    fi
+  cd "$paru_dir" || return 1
+
+  if makepkg -si --noconfirm; then
+    printf "${GREEN}[POST INSTALL]${RESET}: paru installed.\n"
+    rm -rf "$paru_dir"
   else
-    printf "${YELLOW}[POST INSTALL]${RESET}: Skipping paru installation.\n"
+    printf "${RED}[POST INSTALL]${RESET}: Build failed.\n"
+    rm -rf "$paru_dir"
+    return 1
   fi
 }
 
